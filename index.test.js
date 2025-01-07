@@ -1,6 +1,6 @@
 const request = require("supertest");
 const http = require("http");
-const server = require("./index");
+const { server, SERVER_ERROR_MESSAGE } = require("./index");
 const path = require("path");
 const fs = require("fs");
 
@@ -14,48 +14,44 @@ afterAll((done) => {
   testServer.close(done);
 });
 
-it("serves the content of index.html with status 200 when navigating to the root route (/)", async () => {
-  const indexHtmlPath = path.join(__dirname, "index.html");
-  const expectedContent = fs.readFileSync(indexHtmlPath, "utf-8");
+const testCasesSuccess = [
+  { url: "/", page: "index.html" },
+  { url: "/about", page: "about.html" },
+];
 
-  const response = await request(testServer).get("/");
+const testError = new Error("File not found");
 
-  expect(response.status).toBe(200);
-  expect(response.text).toBe(expectedContent);
-});
+const testCasesFailure = [
+  { url: "/", page: "index.html", expectedError: testError },
+  { url: "/about", page: "about.html", expectedError: testError },
+];
 
-it("responds with status 500 when index.html can't be read", async () => {
-  jest.spyOn(fs, "readFile").mockImplementation((path, callback) => {
-    callback(new Error("File not found"), null);
-  });
+it.each(testCasesSuccess)(
+  "serves the content of $page with status 200 when navigating to $url",
+  async ({ url, page }) => {
+    const filePath = path.join(__dirname, page);
+    const expectedContent = fs.readFileSync(filePath, "utf-8");
 
-  const response = await request(testServer).get("/");
-  expect(response.status).toBe(500);
-  expect(response.text).toBe("Internal Server Error");
+    const response = await request(testServer).get(url);
+    expect(response.status).toBe(200);
+    expect(response.text).toBe(expectedContent);
+  },
+);
 
-  fs.readFile.mockRestore();
-});
+it.each(testCasesFailure)(
+  "responds with status 500 when $page can't be read",
+  async ({ url, expectedError }) => {
+    jest.spyOn(fs, "readFile").mockImplementation((path, callback) => {
+      callback(expectedError, null);
+    });
 
-it("serves the content of about.html with status 200 when navigating to '/about'", async () => {
-  const filePath = path.join(__dirname, "about.html");
-  const expectedContent = fs.readFileSync(filePath, "utf-8");
+    const response = await request(testServer).get(url);
+    expect(response.status).toBe(500);
+    expect(response.text).toBe(SERVER_ERROR_MESSAGE);
 
-  const response = await request(testServer).get("/about");
-  expect(response.status).toBe(200);
-  expect(response.text).toBe(expectedContent);
-});
-
-it("responds with status 500 when about.html can't be read", async () => {
-  jest.spyOn(fs, "readFile").mockImplementation((path, callback) => {
-    callback(new Error("File not found"), null);
-  });
-
-  const response = await request(testServer).get("/about");
-  expect(response.status).toBe(500);
-  expect(response.text).toBe("Internal Server Error");
-
-  fs.readFile.mockRestore();
-});
+    fs.readFile.mockRestore();
+  },
+);
 
 /*
   -

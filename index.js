@@ -26,4 +26,4 @@ if (process.env.NODE_ENV !== "test") {
 
 const SERVER_ERROR_MESSAGE = "Internal Server Error";
 
-module.exports = server;
+module.exports = { server, SERVER_ERROR_MESSAGE };
