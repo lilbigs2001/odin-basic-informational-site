@@ -5,6 +5,7 @@ const server = http.createServer((req, res) => {
   let path;
   if (req.url === "/") path = "index.html";
   if (req.url === "/about") path = "about.html";
+  if (req.url === "/contact-me") path = "contact-me.html";
 
   fs.readFile(path, (err, data) => {
     if (err) {

@@ -1,6 +1,6 @@
 const request = require("supertest");
 const http = require("http");
-const { server, SERVER_ERROR_MESSAGE } = require("./index");
+const { server, SERVER_ERROR_MESSAGE } = require("./server");
 const path = require("path");
 const fs = require("fs");
 
@@ -17,6 +17,7 @@ afterAll((done) => {
 const testCasesSuccess = [
   { url: "/", page: "index.html" },
   { url: "/about", page: "about.html" },
+  { url: "/contact-me", page: "contact-me.html" },
 ];
 
 const testError = new Error("File not found");
@@ -24,6 +25,7 @@ const testError = new Error("File not found");
 const testCasesFailure = [
   { url: "/", page: "index.html", expectedError: testError },
   { url: "/about", page: "about.html", expectedError: testError },
+  { url: "/contact-me", page: "contact-me.html", expectedError: testError },
 ];
 
 it.each(testCasesSuccess)(
@@ -54,5 +56,6 @@ it.each(testCasesFailure)(
 );
 
 /*
-  -
+  - success case for /contact-me
+  - failure case for /contact-me
 */

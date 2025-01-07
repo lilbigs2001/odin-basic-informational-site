@@ -2,7 +2,7 @@
   "name": "odin-basic-informational-site",
   "version": "1.0.0",
   "description": "A simple informational website built with Node.js",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "jest --watch"
   },
