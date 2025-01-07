@@ -18,33 +18,35 @@ const testCasesSuccess = [
   { url: "/", page: "index.html" },
   { url: "/about", page: "about.html" },
   { url: "/contact-me", page: "contact-me.html" },
+  { url: "/this-is-fake", page: "404.html" },
 ];
 
 const testError = new Error("File not found");
 
 const testCasesFailure = [
-  { url: "/", page: "index.html", expectedError: testError },
-  { url: "/about", page: "about.html", expectedError: testError },
-  { url: "/contact-me", page: "contact-me.html", expectedError: testError },
+  { url: "/", page: "index.html" },
+  { url: "/about", page: "about.html" },
+  { url: "/contact-me", page: "contact-me.html" },
+  { url: "/this-is-fake", page: "404.html" },
 ];
 
 it.each(testCasesSuccess)(
-  "serves the content of $page with status 200 when navigating to $url",
+  "serves the content of $page with correct status when navigating to $url",
   async ({ url, page }) => {
     const filePath = path.join(__dirname, page);
     const expectedContent = fs.readFileSync(filePath, "utf-8");
 
     const response = await request(testServer).get(url);
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(url !== "/this-is-fake" ? 200 : 404);
     expect(response.text).toBe(expectedContent);
   },
 );
 
 it.each(testCasesFailure)(
   "responds with status 500 when $page can't be read",
-  async ({ url, expectedError }) => {
+  async ({ url }) => {
     jest.spyOn(fs, "readFile").mockImplementation((path, callback) => {
-      callback(expectedError, null);
+      callback(testError, null);
     });
 
     const response = await request(testServer).get(url);
@@ -54,8 +56,3 @@ it.each(testCasesFailure)(
     fs.readFile.mockRestore();
   },
 );
-
-/*
-  - success case for /contact-me
-  - failure case for /contact-me
-*/

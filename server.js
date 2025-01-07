@@ -7,13 +7,15 @@ const server = http.createServer((req, res) => {
   if (req.url === "/about") path = "about.html";
   if (req.url === "/contact-me") path = "contact-me.html";
 
-  fs.readFile(path, (err, data) => {
+  fs.readFile(path || "404.html", (err, data) => {
     if (err) {
       res.writeHead(500, { "Content-Type": "text/plain" });
       res.end(SERVER_ERROR_MESSAGE);
       return;
     }
-    res.writeHead(200, { "Content-Type": "text/html" });
+    res.writeHead(path ? 200 : 404, {
+      "Content-Type": "text/html; charset=utf-8",
+    });
     res.end(data);
     return;
   });
