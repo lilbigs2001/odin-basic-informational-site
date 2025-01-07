@@ -1,19 +1,21 @@
 const http = require("http");
 const fs = require("fs");
-const path = require("path");
 
 const server = http.createServer((req, res) => {
-  if (req.url === "/") {
-    fs.readFile(path.join(__dirname, "index.html"), (err, data) => {
-      if (err) {
-        res.writeHead(500, { "Content-Type": "text/plain" });
-        res.end("Internal Server Error");
-        return;
-      }
-      res.writeHead(200, { "Content-Type": "text/html" });
-      res.end(data);
-    });
-  }
+  let path;
+  if (req.url === "/") path = "index.html";
+  if (req.url === "/about") path = "about.html";
+
+  fs.readFile(path, (err, data) => {
+    if (err) {
+      res.writeHead(500, { "Content-Type": "text/plain" });
+      res.end(SERVER_ERROR_MESSAGE);
+      return;
+    }
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end(data);
+    return;
+  });
 });
 
 if (process.env.NODE_ENV !== "test") {
@@ -21,5 +23,7 @@ if (process.env.NODE_ENV !== "test") {
     console.log("Server is running on http://localhost:8080"),
   );
 }
+
+const SERVER_ERROR_MESSAGE = "Internal Server Error";
 
 module.exports = server;
