@@ -8,7 +8,7 @@ it.each([
   { headerText: "Contact Me", file: "contact-me.html" },
   { headerText: "404—Page not found", file: "404.html" },
 ])("contains an h1 tag with the content '$text'", ({ headerText, file }) => {
-  const filePath = path.join(__dirname, file);
+  const filePath = path.join(__dirname, "../public", file);
   const htmlContent = fs.readFileSync(filePath, "utf-8");
   const $ = cheerio.load(htmlContent);
 

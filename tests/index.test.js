@@ -1,6 +1,6 @@
 const request = require("supertest");
 const http = require("http");
-const { server, SERVER_ERROR_MESSAGE } = require("./server");
+const { server, SERVER_ERROR_MESSAGE } = require("..");
 const path = require("path");
 const fs = require("fs");
 
@@ -33,7 +33,7 @@ const testCasesFailure = [
 it.each(testCasesSuccess)(
   "serves the content of $page with correct status when navigating to $url",
   async ({ url, page }) => {
-    const filePath = path.join(__dirname, page);
+    const filePath = path.join(__dirname, "../public", page);
     const expectedContent = fs.readFileSync(filePath, "utf-8");
 
     const response = await request(testServer).get(url);
